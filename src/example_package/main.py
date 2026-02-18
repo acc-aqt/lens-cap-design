@@ -1,16 +1,41 @@
 """Provide an exemplary entry point."""
 
-from argparse import ArgumentParser
-
-from example_package.example_module import my_sum
+import cadquery as cq
 
 
-def entry_point() -> None:
-    """Provide an exemplary entry point. Take two args and print their sum."""
-    parser = ArgumentParser(description="A simple CLI.")
+def build_model():
 
-    parser.add_argument("input_one", type=float)
-    parser.add_argument("input_two", type=float)
+    # =========================
+    # Parameter (mm)
+    # =========================
+    ID = 75.0          # Innendurchmesser
+    wall = 2.0         # Wandstärke
+    H = 20.0           # Gesamthöhe
+    R_in = 0.8         # Innenradius (Boden/Seitenwand)
+    bottom = 2.0       # Bodenstärke (du kannst hier auch z.B. 2.0 lassen)
 
-    args = parser.parse_args()
-    print(my_sum(args.input_one, args.input_two))
+    IR = ID / 2
+    OR = IR + wall
+
+    solid = cq.Workplane("XY").circle(OR).extrude(H)
+
+    cavity = (
+        cq.Workplane("XY")
+        .workplane(offset=bottom)
+        .circle(IR)
+        .extrude(H - bottom + 0.5)  # ensure it fully cuts
+    )
+
+    part = solid.cut(cavity)
+
+    # --- robust fillet selection: bottom face of the cavity ---
+    # pick the planar face at z=bottom that is INSIDE the part, then fillet its edges
+    part = (
+        part.faces(">Z")  # stabilize selection context
+            .faces(cq.selectors.NearestToPointSelector((0, 0, bottom + 0.01)))  # face near cavity bottom
+            .edges()
+            .fillet(R_in)
+    )
+
+    cq.exporters.export(part, "slip_on_cap.step")
+    cq.exporters.export(part, "slip_on_cap.stl")

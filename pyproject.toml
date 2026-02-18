@@ -1,16 +1,20 @@
 [project]
-name =  "my-python-template"
+name =  "lens-cap-design"
 authors = [
     {name = "Alexander Carrels"},
 ]
 
-description = "Sample Python Project for creating a new Python Module"
+description = "Small python project to create CAD model for a lens cap."
 readme = "README.md"
 version = "0.1.0"
 requires-python = ">=3.8.1"
 
+dependencies = [
+    "cadquery>=2.3",
+]
+
 [project.scripts]
-my-sum = "example_package.main:entry_point"
+build-lens-cap = "example_package.main:build_model"
 
 
 [project.optional-dependencies]
