@@ -1,12 +1,7 @@
+import argparse
 import cadquery as cq
 
-def build_model():
-    # Parameters (mm)
-    ID = 75.0
-    wall = 2.0
-    H = 20.0
-    bottom = 2.0
-
+def build_part(ID: float, wall: float, H: float):
     R_in = 0.8      # inner bottom radius
     R_out = 1.0     # outer bottom radius
 
@@ -17,8 +12,8 @@ def build_model():
     OR = IR + wall
 
     # Guard checks (avoid self-intersections)
-    if R_in >= min(bottom, wall):
-        raise ValueError("R_in must be smaller than bottom and wall thickness.")
+    if R_in >= wall:
+        raise ValueError("R_in must be smaller than wall thickness.")
     if R_out >= wall:
         raise ValueError("R_out should be smaller than wall thickness.")
     if R_top_out >= wall:
@@ -48,23 +43,58 @@ def build_model():
         .radiusArc((IR, H - R_top_in), -R_top_in)
 
         # inner wall down to inner-bottom radius start
-        .lineTo(IR, bottom + R_in)
-        .radiusArc((IR - R_in, bottom), R_in)
+        .lineTo(IR, wall + R_in)
+        .radiusArc((IR - R_in, wall), R_in)
 
         # inner floor back to axis
-        .lineTo(0, bottom)
+        .lineTo(0, wall)
         .close()
     )
 
     part = profile.revolve(360, (0, 0, 0), (0, 1, 0))
     
-    filename = f"slip_on_cap_{ID}".replace(".", "_")
-
-    cq.exporters.export(part, f"{filename}.step")
-    cq.exporters.export(part, f"{filename}.stl")
     return part
 
 
+def parse_args() -> tuple[float, float, float]:
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(
+        description="Generate a parametric slip-on lens cap (CadQuery)"
+    )
+
+    parser.add_argument(
+        "--id",
+        type=float,
+        default=75.0,
+        help="Inner diameter in mm (default: 75.0)",
+    )
+
+    parser.add_argument(
+        "--wall",
+        type=float,
+        default=2.0,
+        help="Wall thickness in mm (default: 2.0)",
+    )
+
+    parser.add_argument(
+        "--height",
+        type=float,
+        default=20.0,
+        help="Total height in mm (default: 20.0)",
+    )
+
+    args = parser.parse_args()
+    
+    return args.id, args.wall, args.height
+
+def main():
+    
+    ID, wall, height = parse_args()
+    part = build_part(ID, wall, height)
+    
+    filename = f"slip-on-cap-{ID}".replace(".", "_")
+
+    cq.exporters.export(part, f"{filename}.step")
+    cq.exporters.export(part, f"{filename}.stl")
 if __name__ == "__main__":
-    part = build_model()
-    show_object(part)
+    main()
