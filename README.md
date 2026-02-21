@@ -4,7 +4,7 @@
 
 A tool to build CAD models for slip over camera lens caps.
 
-![Image of exemplary model result](./images/model.png =250x)
+<img src="./images/model.png" width="300">
 
 ## Prerequisites
 Make sure you have `pip` and `python3` installed on your system. You can check by running on the command line:
