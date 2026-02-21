@@ -1,8 +1,10 @@
-# my-python-template
+# lens-cap-design
 
 ## Description
 
-Template for my python projects.
+A tool to build CAD models for slip over camera lens caps.
+
+![Image of exemplary model result](./images/model.png)
 
 ## Prerequisites
 Make sure you have `pip` and `python3` installed on your system. You can check by running on the command line:
@@ -17,17 +19,14 @@ pip --version
 Clone the repository and install the package using pip:
 
 ```
-git clone https://github.com/acc-aqt/my-python-template
-cd my-python-template
+git clone https://github.com/acc-aqt/lens-cap-design
+cd lens-cap-design
 pip install .
 ```
 
-As `my-python-template` is configured as a GitHub-template you can also use this template by clicking "use this template" on the GitHub page.
-
 ## Execution
 
-An exemplary entry point `my-sum` is configured in the 'pyproject.toml'.
-Call `my-sum  --help` to check the required arguments.
+Call `build-lens-cap -h` to see available arguments.
 
 ## Development Setup (if needed)
 
