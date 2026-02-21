@@ -6,36 +6,58 @@ import cadquery as cq
 def build_model():
 
     # =========================
-    # Parameter (mm)
+    # Parameters (mm)
     # =========================
-    ID = 75.0          # Innendurchmesser
-    wall = 2.0         # Wandstärke
-    H = 20.0           # Gesamthöhe
-    R_in = 0.8         # Innenradius (Boden/Seitenwand)
-    bottom = 2.0       # Bodenstärke (du kannst hier auch z.B. 2.0 lassen)
+    ID = 75.0          # inner diameter
+    wall = 2.0         # wall thickness
+    H = 20.0           # total height
+    bottom = 2.0       # bottom thickness
 
-    IR = ID / 2
+    R_in = 0.8         # inner bottom radius
+    R_out = 1.0        # outer bottom radius 
+
+    # Guards (avoid impossible geometry)
+    if R_in >= min(bottom, wall):
+        raise ValueError("R_in must be smaller than bottom and wall thickness.")
+    if R_out >= wall:
+        raise ValueError("R_out should be smaller than wall thickness (try 0.6–1.2 for wall=2).")
+
+    IR = ID / 2.0
     OR = IR + wall
 
-    solid = cq.Workplane("XY").circle(OR).extrude(H)
+    wp = cq.Workplane("XZ")
 
-    cavity = (
-        cq.Workplane("XY")
-        .workplane(offset=bottom)
-        .circle(IR)
-        .extrude(H - bottom + 0.5)  # ensure it fully cuts
+    profile = (
+        wp
+        # Start on axis at bottom
+        .moveTo(0, 0)
+
+        # Bottom outer, stop before corner radius
+        .lineTo(OR - R_out, 0)
+
+        # Outer convex radius: (OR - R_out,0) -> (OR, R_out)
+        # Use negative radius if it flips (depends on CQ version/orientation)
+        .radiusArc((OR, R_out), -R_out)
+
+        # Outer wall up
+        .lineTo(OR, H)
+
+        # Top thickness to inner wall
+        .lineTo(IR, H)
+
+        # Inner wall down to where inner radius starts
+        .lineTo(IR, bottom + R_in)
+
+        # Inner concave radius: (IR, bottom+R_in) -> (IR - R_in, bottom)
+        .radiusArc((IR - R_in, bottom), R_in)
+
+        # Inner floor to axis, then close
+        .lineTo(0, bottom)
+        .close()
     )
 
-    part = solid.cut(cavity)
-
-    # --- robust fillet selection: bottom face of the cavity ---
-    # pick the planar face at z=bottom that is INSIDE the part, then fillet its edges
-    part = (
-        part.faces(">Z")  # stabilize selection context
-            .faces(cq.selectors.NearestToPointSelector((0, 0, bottom + 0.01)))  # face near cavity bottom
-            .edges()
-            .fillet(R_in)
-    )
+    part = profile.revolve(360, (0, 0, 0), (0, 1, 0))
 
     cq.exporters.export(part, "slip_on_cap.step")
     cq.exporters.export(part, "slip_on_cap.stl")
+
