@@ -65,7 +65,7 @@ def parse_args() -> tuple[float, float, float]:
     parser.add_argument(
         "--id",
         type=float,
-        default=75.0,
+        default=74.0,
         help="Inner diameter in mm (default: 75.0)",
     )
 
