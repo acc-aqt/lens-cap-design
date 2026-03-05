@@ -1,10 +1,10 @@
 [project]
-name =  "lens-cap-design"
+name =  "lens-cap-model"
 authors = [
     {name = "Alexander Carrels"},
 ]
 
-description = "Small python project to create 3D printable CAD model for a camera lens caps."
+description = "Tool to create 3D printable CAD model for a camera lens caps."
 readme = "README.md"
 version = "1.0.0"
 requires-python = ">=3.8.1"
