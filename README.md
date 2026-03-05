@@ -1,4 +1,4 @@
-# lens-cap-design
+# lens-cap-model
 
 ## Description
 
@@ -19,8 +19,8 @@ pip --version
 Clone the repository and install the package using pip:
 
 ```
-git clone https://github.com/acc-aqt/lens-cap-design
-cd lens-cap-design
+git clone https://github.com/acc-aqt/lens-cap-model
+cd lens-cap-model
 pip install .
 ```
 
