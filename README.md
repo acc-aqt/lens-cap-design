@@ -2,7 +2,7 @@
 
 ## Description
 
-A tool to build CAD models for slip over camera lens caps.
+A tool to build 3D-printable CAD models for slip-over camera lens caps.
 
 <img src="./images/model.png" width="300">
 
